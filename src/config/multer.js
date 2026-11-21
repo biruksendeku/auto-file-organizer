@@ -1,7 +1,7 @@
 import multer from "multer";
-import path from "path";
 import { fileFilter } from "../utils/fileFilter.js";
 import { createFolder } from "../utils/createFolder.js";
+import { generateUniqueSuffix } from "../utils/generateUniqueSuffix.js";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -12,9 +12,8 @@ const storage = multer.diskStorage({
   },
 
   filename: (req, file, cb) => {
-    const extension = path.extname(file.originalname);
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `${file.fieldname}-${uniqueSuffix}${extension}`);
+    const uniqueSuffix = generateUniqueSuffix(file);
+    cb(null, uniqueSuffix);
   },
 });
 
