@@ -3,11 +3,10 @@ import { mkdir } from "node:fs/promises";
 
 export const createFolder = async (file) => {
   try {
-    const extension = path.extname(file.originalname);
-    const ext = extension.slice(1);
-    const targetDir = path.join(__dirname, "uploads", ext);
+    const extension = path.extname(file.originalname).slice(1);
+    const targetDir = path.join(__dirname, "uploads", extension);
     await mkdir(targetDir, { recursive: true });
   } catch (err) {
-    console.error(`Error creating the required ${ext} folder: `, err);
+    console.error(`Error creating the required ${extension} folder: `, err);
   }
 };
