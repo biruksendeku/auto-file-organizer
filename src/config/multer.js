@@ -1,30 +1,20 @@
 import multer from "multer";
 import path from "path";
 import { fileFilter } from "../utils/fileFilter.js";
-import { folderExists } from "../utils/folderExists.js";
 import { createFolder } from "../utils/createFolder.js";
 
 const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    console.log("file: ", file);
-    const folderExistence = await folderExists(file);
-    console.log("ext: ", ext);
-    console.log("folderExistence: ", folderExistence);
-    if (folderExistence) {
-      // put the file in that folder
-      const targetDir = path.join(__dirname, "uploads", ext);
-      console.log("targetDir: ", targetDir);
-      cb(null, targetDir);
-    } else {
-      const newTargetFolder = await createFolder(file);
-      console.log("newTargetFolder: ", newTargetFolder);
-      cb(null, newTargetFolder);
-    }
+  destination: (req, file, cb) => {
+    createFolder(file).then(
+      (targetDir) => cb(null, targetDir),
+      (error) => cb(error),
+    );
   },
 
   filename: (req, file, cb) => {
-    const uniqueSuffix = generateUniqueSuffix(file);
-    cb(null, uniqueSuffix);
+    const extension = path.extname(file.originalname);
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    cb(null, `${file.fieldname}-${uniqueSuffix}${extension}`);
   },
 });
 
