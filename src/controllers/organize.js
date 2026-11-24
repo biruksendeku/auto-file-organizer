@@ -6,7 +6,7 @@ export const organizeGet = (req, res) => {
   res.sendFile("/homepage.html");
 };
 
-export const organize = async (req, res) => {
+export const organize = (req, res) => {
   if (!req.file) {
     throw new BadRequestError("No files uploaded!");
   }
