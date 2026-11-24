@@ -1,7 +1,9 @@
+import path from "path";
+import { fileURLToPath } from "node:url";
 import { BadRequestError } from "../middlewares/customErrors.js";
 
 export const organizeGet = (req, res) => {
-  res.render("homepage");
+  res.sendFile("/homepage.html");
 };
 
 export const organize = async (req, res) => {
@@ -13,5 +15,13 @@ export const organize = async (req, res) => {
   //   success: true,
   //   message: "File organized successfully!",
   // });
-  res.render("results");
+
+  const results = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../uploads",
+  );
+  // res.render("results", {
+  //   results,
+  // });
+  res.sendFile(results);
 };
