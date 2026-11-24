@@ -3,9 +3,166 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Results</title>
+    <title>Uploaded files</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #1f2328;
+        background: #f6f8fa;
+      }
+
+      body {
+        margin: 0;
+        padding: 48px 20px;
+      }
+
+      main {
+        max-width: 860px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      .description {
+        margin: 0 0 24px;
+        color: #656d76;
+      }
+
+      .file-browser {
+        overflow: hidden;
+        border: 1px solid #d0d7de;
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .browser-header,
+      .tree-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 44px;
+        padding: 0 16px;
+      }
+
+      .browser-header {
+        border-bottom: 1px solid #d8dee4;
+        background: #f6f8fa;
+        font-weight: 600;
+      }
+
+      .tree-row {
+        border-bottom: 1px solid #eaeef2;
+      }
+
+      .tree-row:last-child {
+        border-bottom: 0;
+      }
+
+      .tree-icon {
+        width: 18px;
+        flex: 0 0 18px;
+        color: #57606a;
+        text-align: center;
+      }
+
+      .tree-name {
+        overflow-wrap: anywhere;
+      }
+
+      .empty-state,
+      .error-state {
+        padding: 24px 16px;
+        color: #656d76;
+      }
+
+      .error-state {
+        color: #cf222e;
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #0969da;
+        text-decoration: none;
+      }
+
+      .back-link:hover {
+        text-decoration: underline;
+      }
+    </style>
   </head>
   <body>
-    Results will be here soon...
+    <main>
+      <h1>Uploaded files</h1>
+      <p class="description">Browse your uploads by file type.</p>
+      <section class="file-browser" aria-label="Uploaded files">
+        <div class="browser-header">
+          <span class="tree-icon" aria-hidden="true">▣</span>
+          <span>uploads</span>
+        </div>
+        <div id="file-tree" role="tree" aria-live="polite">
+          <p class="empty-state">Loading uploaded files…</p>
+        </div>
+      </section>
+      <a class="back-link" href="/organize">Upload another file</a>
+    </main>
+    <script>
+      const fileTree = document.querySelector("#file-tree");
+
+      const renderEntries = (entries, container, depth = 0) => {
+        for (const entry of entries) {
+          const row = document.createElement("div");
+          row.className = "tree-row";
+          row.setAttribute("role", "treeitem");
+          row.style.paddingLeft = `${16 + depth * 24}px`;
+
+          const icon = document.createElement("span");
+          icon.className = "tree-icon";
+          icon.setAttribute("aria-hidden", "true");
+          icon.textContent = entry.type === "directory" ? "▰" : "▤";
+
+          const name = document.createElement("span");
+          name.className = "tree-name";
+          name.textContent = entry.name;
+
+          row.append(icon, name);
+          container.append(row);
+
+          if (entry.type === "directory") {
+            renderEntries(entry.children, container, depth + 1);
+          }
+        }
+      };
+
+      fetch("/api/uploads")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Could not load uploaded files.");
+          }
+          return response.json();
+        })
+        .then((root) => {
+          fileTree.replaceChildren();
+          if (root.children.length === 0) {
+            const emptyState = document.createElement("p");
+            emptyState.className = "empty-state";
+            emptyState.textContent = "No files have been uploaded yet.";
+            fileTree.append(emptyState);
+            return;
+          }
+          renderEntries(root.children, fileTree);
+        })
+        .catch(() => {
+          const errorState = document.createElement("p");
+          errorState.className = "error-state";
+          errorState.textContent = "Unable to load uploaded files.";
+          fileTree.replaceChildren(errorState);
+        });
+    </script>
   </body>
 </html>

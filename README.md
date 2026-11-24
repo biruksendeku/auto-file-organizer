@@ -53,7 +53,9 @@ curl -F "file=@document.pdf" http://localhost:8000/organize
 Files must have a filename extension. The default maximum upload size is 100 MB;
 set `MAX_FILE_SIZE` in megabytes to change it. Files are saved on the server in
 `uploads/<extension>/` (for example, `uploads/pdf/`). The `uploads/` directory
-is ignored by Git.
+is ignored by Git. After uploading, the app opens `/results.html`, which lists
+uploaded filenames in their extension folders without exposing file contents.
+The page gets this directory listing from `GET /api/uploads`.
 
 ## License
 
